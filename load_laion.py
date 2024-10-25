@@ -92,7 +92,7 @@ class LaionBuilder():
                     thread_cum += 1
                 # Summarize
                 for thread in as_completed(threads):
-                    num_data - thread.result()
+                    num_data -= thread.result()
                     pool.shutdown(wait=True)
             # batch summarize
             print("cycle complete. remaining tasks: ", num_data)
