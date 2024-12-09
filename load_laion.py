@@ -1,18 +1,10 @@
 from PIL import Image
-import requests
 from tqdm import tqdm
-
-import matplotlib.pyplot as plt
-
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
-
 from datasets import load_dataset
-
 from concurrent.futures import ThreadPoolExecutor,as_completed
-
 import random
-
 import os
 
 def build_dataset(thread_cum, urls, correct_sizes, texts, save_path, timeout):
@@ -45,13 +37,16 @@ def build_dataset(thread_cum, urls, correct_sizes, texts, save_path, timeout):
     return success
 
 class LaionBuilder():
-    def __init__(self, token="", dataset_name="laion/laion2B-en-aesthetic"):
+    def __init__(self, token="", dataset_name="laion/laion2B-en-aesthetic", tgt_url="URL", tgt_txt="TEXT"):
         # Load Meta
         print("loading meta")
         self.ds = load_dataset(dataset_name, token=token, split="train", streaming=True)
         self.ds = self.ds.shuffle(seed=random.randint(0, 1000))
         self.default_path = "./" + dataset_name + "/"
-        print("meta loaded")
+        self.tgt_url = tgt_url
+        self.tgt_txt = tgt_txt
+        print("LAION - meta data loaded successfully! ")
+        print("DATASET:", dataset_name, "Image-URL col heading:", tgt_url, "Text col heading:", tgt_txt)
 
     def load(self, num_data, save_path=".", num_workers=1, timeout=10):
         if save_path == ".":
@@ -82,9 +77,9 @@ class LaionBuilder():
                     else:
                         this_ds = list(self.ds.take(num_per_thread))
                     # Calc
-                    urls = [ent["URL"] for ent in this_ds]
+                    urls = [ent[self.tgt_url] for ent in this_ds]
                     correct_sizes = [ [ent["WIDTH"], ent["HEIGHT"]] for ent in this_ds]
-                    texts = [ent["TEXT"] for ent in this_ds]
+                    texts = [ent[self.tgt_txt] for ent in this_ds]
                     # Start Thread
                     threads.append(pool.submit(build_dataset, this_thread_id, urls, correct_sizes, texts, save_path, timeout))
                     # Skip Used
@@ -96,4 +91,3 @@ class LaionBuilder():
                     pool.shutdown(wait=True)
             # batch summarize
             print("cycle complete. remaining tasks: ", num_data)
-            
