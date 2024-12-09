@@ -37,11 +37,14 @@ def build_dataset(thread_cum, urls, correct_sizes, texts, save_path, timeout):
     return success
 
 class LaionBuilder():
-    def __init__(self, token="", dataset_name="laion/laion2B-en-aesthetic", tgt_url="URL", tgt_txt="TEXT"):
+    def __init__(self, token="", dataset_name="laion/laion2B-en-aesthetic", tgt_url="URL", tgt_txt="TEXT", shuffle=True):
         # Load Meta
         print("loading meta")
         self.ds = load_dataset(dataset_name, token=token, split="train", streaming=True)
-        self.ds = self.ds.shuffle(seed=random.randint(0, 1000))
+        if shuffle==True:
+            seed=random.randint(0, 1000)
+            self.ds = self.ds.shuffle(seed=seed)
+            print("shuffling with seed:", seed)
         self.default_path = "./" + dataset_name + "/"
         self.tgt_url = tgt_url
         self.tgt_txt = tgt_txt
