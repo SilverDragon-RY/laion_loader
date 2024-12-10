@@ -51,7 +51,7 @@ class LaionBuilder():
         print("LAION - meta data loaded successfully! ")
         print("DATASET:", dataset_name, "Image-URL col heading:", tgt_url, "Text col heading:", tgt_txt)
 
-    def load(self, num_data, save_path=".", num_workers=1, timeout=10):
+    def load(self, num_data, save_path=".", num_workers=16, timeout=10):
         if save_path == ".":
             save_path = self.default_path
         # Check path
